@@ -50,16 +50,14 @@ export const getMostRecentDayPercentChange = async (apiKey, symbol) => {
  * Fetches the ten-day average low price for a given stock symbol.
  * @param {string} apiKey - The API key for Alpha Vantage.
  * @param {string} symbol - The stock symbol to fetch data for.
- * @returns {Promise<{symbol: string, latestDay: Object, averageLow: number}>} An object containing the symbol, the latest day's data, and the ten-day average low price.
+ * @returns {Promise<{symbol: string, averageLow: number}>} An object containing the symbol, the latest day's data, and the ten-day average low price.
  */
 export const getTenDayAverageLow = async (apiKey, symbol) => {
   const resp = await getStockData(apiKey, symbol);
   const tenDayData = Object.values(resp['Time Series (Daily)']).slice(0, 10);
-  const latestDay = Object.values(resp['Time Series (Daily)'])[0];
   const sum = tenDayData.reduce((acc, day) => acc + parseFloat(day['3. low']), 0);
   return {
     symbol: symbol,
-    latestDay: latestDay,
     averageLow: sum / tenDayData.length
   }
 }

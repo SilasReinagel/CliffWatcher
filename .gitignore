@@ -18,3 +18,4 @@ coverage/
 *.sublime-project
 .env.local
 config.json
+config-test.json

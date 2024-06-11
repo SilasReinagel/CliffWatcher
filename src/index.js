@@ -1,34 +1,18 @@
+// @ts-check
+import { CronJob } from 'cron';
+import fs from 'fs';
+import dotenv from 'dotenv';
+import { resilientAlertOnCliff } from './app.js';
+dotenv.config({ path: '.env.local' });
 
-/**
- * @typedef {Object} StockMonitorConfig
- * @property {string[]} symbols - Array of stock symbols to monitor.
- * @property {number} maxDrop - Maximum drop percentage to trigger an alert.
- */
-
-const checkStocksForAnyCliffs = async (config) => {
-  const { symbols, maxDrop } = config;
-
-  for (const symbol of symbols) {
-    const stockData = await getStockData(apiKey, symbol);
-    const currentPrice = stockData.latestPrice;
-    const previousDayPrice = stockData.previousDayPrice;
-    const dropPercentage = ((previousDayPrice - currentPrice) / previousDayPrice) * 100;
-    if (dropPercentage > maxDrop) {
-      console.log(`Cliff detected for ${symbol} with a drop of ${dropPercentage}%`);
-    }
-  }
+const every15Minutes = '0,15,30,45 * * * *';
+const userConfig = JSON.parse(fs.readFileSync('config-test.json', 'utf8'));
+const exec = async () => {
+	await resilientAlertOnCliff(userConfig);
 }
 
-const everyDay8pmPst = '00 00 20 * * *';
-
-const job = CronJob.from({
-	cronTime: everyDay8pmPst,
-	onTick: function () {
-		console.log('You will see this message every second');
-	},
+CronJob.from({
+	cronTime: every15Minutes,
+	onTick: exec,
 	start: true,
-	timeZone: 'America/Los_Angeles'
 });
-
-
-
