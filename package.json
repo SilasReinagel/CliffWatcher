@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "start:prod": "node src/index.js config.json",
+    "start:pm2": "pm2 start src/index.js --name cliffwatcher --cwd . -- config.json"
   },
   "keywords": [],
   "author": "",
