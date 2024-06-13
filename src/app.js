@@ -31,6 +31,7 @@ const getCachedAverageLow = async (symbol) => {
 }
 
 export const alertOnCliff = async (config) => {
+  console.log(`${new Date().toISOString()} - Performing Check`)
   const { symbols, notifyDiscordUserId, infoNotify } = config;
 
   const symbolsFellOffCliff = [];

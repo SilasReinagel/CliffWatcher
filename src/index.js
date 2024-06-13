@@ -10,6 +10,11 @@ if (launchArgs.length === 0) {
     console.error('No launch arguments provided. Exiting...');
     process.exit(1);
 }
+if (!process.env.DISCORD_BOT_TOKEN || !process.env.ALPHA_VANTAGE_API_KEY) {
+    console.error('Required environment variables are missing. Exiting...');
+    process.exit(1);
+}
+
 const configFile = launchArgs[0];
 
 const every15Minutes = '0,15,30,45 * * * *';
@@ -23,3 +28,6 @@ CronJob.from({
 	onTick: exec,
 	start: true,
 });
+
+console.log('Cliffwatcher started...')
+console.log('Watching Symbols:', userConfig.symbols)
