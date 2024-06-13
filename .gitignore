@@ -19,3 +19,6 @@ coverage/
 .env.local
 config.json
 config-test.json
+/keys
+connect-ssh.sh
+
