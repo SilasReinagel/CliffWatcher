@@ -1,10 +1,12 @@
 // @ts-check
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 let browserInstance = null;
 
 async function getBrowserInstance() {
   if (!browserInstance) {
+    puppeteer.use(StealthPlugin())
     browserInstance = await puppeteer.launch({ headless: true });
   }
   return browserInstance;

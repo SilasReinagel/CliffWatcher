@@ -41,6 +41,7 @@ export const alertOnCliff = async (config) => {
     if (parseFloat(currentPrice) < parseFloat(averageLow)) {
       symbolsFellOffCliff.push(symbol);
     }
+    console.log(`${new Date().toISOString()} - Check complete for ${symbol} - 10wk Avg Low: ${averageLow} - Current Price: ${currentPrice}`)
   }
 
   if (symbolsFellOffCliff.length > 0) {
@@ -53,7 +54,8 @@ export const alertOnCliff = async (config) => {
     } else {
       await sendDirectMessage(infoNotifyDiscordUserId, `Cliffwatcher is alive and well!`);
     }
-  } 
+  }
+  console.log(`${new Date().toISOString()} - Check complete`)
 }
 
 export const resilientAlertOnCliff = async (config) => {
