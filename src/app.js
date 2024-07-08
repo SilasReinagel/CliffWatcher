@@ -7,6 +7,7 @@ import { fetchPriceFromYahoo } from './yahooFinanceReader.js';
 
 const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
 const infoNotifyDiscordUserId = process.env.INFO_NOTIFY_DISCORD_USER_ID;
+const shouldSaveScreenshot = true;
 
 const getCachedAverageLow = async (symbol) => {
   if (!apiKey) {
@@ -38,7 +39,7 @@ export const alertOnCliff = async (config) => {
   const symbolsFellOffCliff = [];
   for (const symbol of symbols) {
     const averageLow = await getCachedAverageLow(symbol);
-    const currentPrice = await fetchPriceFromYahoo(symbol);
+    const currentPrice = await fetchPriceFromYahoo(symbol, shouldSaveScreenshot);
     if (parseFloat(currentPrice) < parseFloat(averageLow)) {
       symbolsFellOffCliff.push(symbol);
     }
