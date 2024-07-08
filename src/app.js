@@ -1,5 +1,6 @@
 // @ts-check
 
+import { errorNotify } from './adminNotify.js';
 import { getTenDayAverageLow } from './alphaVantageClient.js';
 import { sendDirectMessage } from './discordClient.js';
 import { fetchPriceFromYahoo } from './yahooFinanceReader.js';
@@ -41,7 +42,7 @@ export const alertOnCliff = async (config) => {
     if (parseFloat(currentPrice) < parseFloat(averageLow)) {
       symbolsFellOffCliff.push(symbol);
     }
-    console.log(`${new Date().toISOString()} - Check complete for ${symbol} - 10wk Avg Low: ${averageLow} - Current Price: ${currentPrice}`)
+    console.log(`${new Date().toISOString()} - Check complete for ${symbol} - 10 day Avg Low: ${averageLow} - Current Price: ${currentPrice}`)
   }
 
   if (symbolsFellOffCliff.length > 0) {
@@ -51,8 +52,6 @@ export const alertOnCliff = async (config) => {
   if (infoNotify && !!infoNotifyDiscordUserId) {
     if (symbolsFellOffCliff.length > 0) {
       await sendDirectMessage(infoNotifyDiscordUserId, `${symbolsFellOffCliff.length} symbols fell off the cliff: ${symbolsFellOffCliff.join(', ')}`);
-    } else {
-      await sendDirectMessage(infoNotifyDiscordUserId, `Cliffwatcher is alive and well!`);
     }
   }
   console.log(`${new Date().toISOString()} - Check complete`)
@@ -72,15 +71,5 @@ export const resilientAlertOnCliff = async (config) => {
         await errorNotify(error);
       }
     }
-  }
-}
-
-const errorNotify = async (error) => {
-  try {
-    if (infoNotifyDiscordUserId) {
-      await sendDirectMessage(infoNotifyDiscordUserId, `Cliffwatcher Error: ${JSON.stringify(error ?? error.message, null, 2)}`);
-    }
-  } catch (error) {
-    console.error('Unable to notify about Error', error);
   }
 }
