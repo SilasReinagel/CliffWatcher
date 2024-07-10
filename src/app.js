@@ -43,7 +43,7 @@ export const alertOnCliff = async (config) => {
     if (parseFloat(currentPrice) < parseFloat(averageLow)) {
       symbolsFellOffCliff.push(symbol);
     }
-    console.log(`${new Date().toISOString()} - Check complete for ${symbol} - 10 day Avg Low: ${averageLow} - Current Price: ${currentPrice}`)
+    console.log(`${new Date().toISOString()} - Check complete for ${symbol} - 10 day Avg Low: ${averageLow.toFixed(2)} - Current Price: ${currentPrice}`)
   }
 
   if (symbolsFellOffCliff.length > 0) {

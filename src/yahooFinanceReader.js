@@ -3,14 +3,9 @@ import * as fs from 'fs';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
-let browserInstance = null;
-
 async function getBrowserInstance() {
-  if (!browserInstance) {
-    puppeteer.use(StealthPlugin())
-    browserInstance = await puppeteer.launch({ headless: true });
-  }
-  return browserInstance;
+  puppeteer.use(StealthPlugin())
+  return await puppeteer.launch({ headless: true, protocolTimeout: 60000 });
 }
 
 /**
@@ -21,23 +16,30 @@ async function getBrowserInstance() {
  */
 export const fetchPriceFromYahoo = async (symbol, shouldSaveScreenshot = false) => {
   const browser = await getBrowserInstance();
-  const page = await browser.newPage();
-  await page.goto(`https://finance.yahoo.com/quote/${symbol}/`, { waitUntil: 'networkidle2' });
-
-  const priceSelector = '[data-testid="qsp-price"]';
-  const price = await page.$eval(priceSelector, el => el.getAttribute('data-value'));
-
-  if (shouldSaveScreenshot) {
-    try {
-      if (!fs.existsSync('./screenshots')) {
-        fs.mkdirSync('./screenshots');
+  try {
+    const page = await browser.newPage();
+    await page.goto(`https://finance.yahoo.com/quote/${symbol}/`, { waitUntil: 'networkidle2' });
+    if (shouldSaveScreenshot) {
+      try {
+        if (!fs.existsSync('./screenshots')) {
+          fs.mkdirSync('./screenshots');
+        }
+        const iso8601now = new Date().toISOString().replace("-", "").replace(":", "").replace("-", "").slice(0, -5);
+        await page.screenshot({ 
+          path: `screenshots/${symbol}-${iso8601now}.png`, 
+          type: "png"
+        });
+      } catch (error) {
+        console.error('Error saving screenshot:', error);
       }
-      const iso8601now = new Date().toISOString();
-      await page.screenshot({ path: `./screenshots/${symbol}-${iso8601now}.jpg` });
-    } catch (error) {
-      console.error('Error saving screenshot:', error);
     }
-  }
 
-  return price ?? 'N/A';
+    const priceSelector = '[data-testid="qsp-price"]';
+    const price = await page.$eval(priceSelector, el => el.getAttribute('data-value'));
+    await page.close();
+
+    return price ?? 'N/A';
+  } finally {
+    browser?.close();
+  }
 }

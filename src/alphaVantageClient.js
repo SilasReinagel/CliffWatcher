@@ -56,9 +56,11 @@ export const getTenDayAverageLow = async (apiKey, symbol) => {
   const resp = await getStockData(apiKey, symbol);
   const tenDayData = Object.values(resp['Time Series (Daily)']).slice(0, 10);
   const sum = tenDayData.reduce((acc, day) => acc + parseFloat(day['3. low']), 0);
+  const averageLow = sum / tenDayData.length;
+
   return {
-    symbol: symbol,
-    averageLow: sum / tenDayData.length
+    symbol,
+    averageLow
   }
 }
 
