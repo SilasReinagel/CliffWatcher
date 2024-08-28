@@ -19,23 +19,28 @@ export const fetchPriceFromYahoo = async (symbol, shouldSaveScreenshot = false) 
   try {
     const page = await browser.newPage();
     await page.goto(`https://finance.yahoo.com/quote/${symbol}/`, { waitUntil: 'networkidle2' });
+
+    const priceSelector = '[data-testid="qsp-price"]';
+    const price = await page.$eval(priceSelector, el => el.getAttribute('data-value'));
     if (shouldSaveScreenshot) {
       try {
         if (!fs.existsSync('./screenshots')) {
           fs.mkdirSync('./screenshots');
         }
-        const iso8601now = new Date().toISOString().replace("-", "").replace(":", "").replace("-", "").slice(0, -5);
-        await page.screenshot({ 
+        const iso8601now = new Date().toISOString().replace(/[-:]/g, "").slice(0, -5);
+        await page.setViewport({ width: 1280, height: 800 });
+        const screenshot = await page.screenshot({ 
           path: `screenshots/${symbol}-${iso8601now}.png`, 
-          type: "png"
+          type: "png",
+          fullPage: true
         });
+        if (!screenshot) {
+          throw new Error('Screenshot is empty');
+        }
       } catch (error) {
         console.error('Error saving screenshot:', error);
       }
     }
-
-    const priceSelector = '[data-testid="qsp-price"]';
-    const price = await page.$eval(priceSelector, el => el.getAttribute('data-value'));
     await page.close();
 
     return price ?? 'N/A';

@@ -32,16 +32,30 @@ const getCachedAverageLow = async (symbol) => {
   return averageLow;
 }
 
+// Add a new object to store the last alert time for each symbol per user
+const lastAlertTime = {};
+
 export const alertOnCliff = async (config) => {
   console.log(`${new Date().toISOString()} - Performing Check`)
   const { symbols, notifyDiscordUserId, infoNotify } = config;
 
   const symbolsFellOffCliff = [];
+  const currentTime = Date.now();
+
+  // Initialize lastAlertTime for this user if it doesn't exist
+  if (!lastAlertTime[notifyDiscordUserId]) {
+    lastAlertTime[notifyDiscordUserId] = {};
+  }
+
   for (const symbol of symbols) {
     const averageLow = await getCachedAverageLow(symbol);
     const currentPrice = await fetchPriceFromYahoo(symbol, shouldSaveScreenshot);
     if (parseFloat(currentPrice) < parseFloat(averageLow)) {
-      symbolsFellOffCliff.push(symbol);
+      // Check if 24 hours have passed since the last alert for this symbol for this user
+      if (!lastAlertTime[notifyDiscordUserId][symbol] || (currentTime - lastAlertTime[notifyDiscordUserId][symbol]) >= 24 * 60 * 60 * 1000) {
+        symbolsFellOffCliff.push(symbol);
+        lastAlertTime[notifyDiscordUserId][symbol] = currentTime; // Update the last alert time
+      }
     }
     console.log(`${new Date().toISOString()} - Check complete for ${symbol} - 10 day Avg Low: ${averageLow.toFixed(2)} - Current Price: ${currentPrice}`)
   }
